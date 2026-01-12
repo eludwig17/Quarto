@@ -3,8 +3,8 @@
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
 #
 #Editor Settings
-.vscode
-.idea
+.vscode/
+.idea/
 
 .utmp/
 /[Ll]ibrary/
