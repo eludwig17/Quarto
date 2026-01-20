@@ -8,26 +8,26 @@ public class QuartoGenerator : MonoBehaviour
 
     void Start()
     {
-        CreateCylinder(new Vector3(0, 0, 0), true);  
-        CreateCylinder(new Vector3(2, 0, 0), true);  
-        CreateCylinder(new Vector3(4, 0, 0), true); 
-        CreateCylinder(new Vector3(6, 0, 0), true);  
+        CreateCylinder(new Vector3(-48, 1, 42), true);  
+        CreateCylinder(new Vector3(-47, 1, 42), true);  
+        CreateCylinder(new Vector3(-46, 1, 42), true); 
+        CreateCylinder(new Vector3(-45, 1, 42), true);  
 
-        CreateCylinder(new Vector3(0, 0, 2), false); 
-        CreateCylinder(new Vector3(2, 0, 2), false);
-        CreateCylinder(new Vector3(4, 0, 2), false); 
-        CreateCylinder(new Vector3(6, 0, 2), false); 
+        CreateCylinder(new Vector3(-48, (float)0.5, 46), false); 
+        CreateCylinder(new Vector3(-47, (float)0.5, 46), false);
+        CreateCylinder(new Vector3(-46, (float)0.5, 46), false); 
+        CreateCylinder(new Vector3(-45, (float)0.5, 46), false); 
 
 
-        CreatePyramid(new Vector3(0, 0, 4), true, true);   
-        CreatePyramid(new Vector3(2, 0, 4), true, false);  
-        CreatePyramid(new Vector3(4, 0, 4), true, true);   
-        CreatePyramid(new Vector3(6, 0, 4), true, false); 
+        CreatePyramid(new Vector3(-48, 1, 44), true, true);   
+        CreatePyramid(new Vector3(-47, 1, 44), true, false);  
+        CreatePyramid(new Vector3(-46, 1, 44), true, true);   
+        CreatePyramid(new Vector3(-45, 1, 44), true, false); 
 
-        CreatePyramid(new Vector3(0, 0, 6), false, true); 
-        CreatePyramid(new Vector3(2, 0, 6), false, false); 
-        CreatePyramid(new Vector3(4, 0, 6), false, true);  
-        CreatePyramid(new Vector3(6, 0, 6), false, false); 
+        CreatePyramid(new Vector3(-48, (float)0.5, 48), false, true); 
+        CreatePyramid(new Vector3(-47, (float)0.5, 48), false, false); 
+        CreatePyramid(new Vector3(-46, (float)0.5, 48), false, true);  
+        CreatePyramid(new Vector3(-45, (float)0.5, 48), false, false); 
     }
 
     void CreateCylinder(Vector3 position, bool tall)
