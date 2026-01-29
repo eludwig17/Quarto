@@ -1,39 +1,66 @@
-
 using UnityEngine;
 
 public class GamePieces : MonoBehaviour{
+    [Header("Material assets")]
     public Material whiteMaterial;
     public Material blackMaterial;
     public Material whiteMaterialHollow;
     public Material blackMaterialHollow;
 
+    [Header("Spawn Layout in Scene")]
+    public Vector3 pieceRowStart = new Vector3(-15f, 0f, 0f);
+    public float pieceSpacing = 1.5f;
+
     void Start(){
-        // short cylinders
-        CreateCylinder(new Vector3(-48, 1, 42), true, true, true);
-        CreateCylinder(new Vector3(-46, 1, 42), true, true, false);
-        CreateCylinder(new Vector3(-44, 1, 42), true, false, true);
-        CreateCylinder(new Vector3(-42, 1, 42), true, false, false);
-        // short cylinders
-        CreateCylinder(new Vector3(-48, 0.5f, 46), false, true, true);
-        CreateCylinder(new Vector3(-46, 0.5f, 46), false, true, false);
-        CreateCylinder(new Vector3(-44, 0.5f, 46), false, false, true);
-        CreateCylinder(new Vector3(-42, 0.5f, 46), false, false, false);
-        // tall prisms
-        CreateTriangularPrism(new Vector3(-48, 1, 44), true, true, true);
-        CreateTriangularPrism(new Vector3(-46, 1, 44), true, true, false);
-        CreateTriangularPrism(new Vector3(-44, 1, 44), true, false, true);
-        CreateTriangularPrism(new Vector3(-42, 1, 44), true, false, false);
-        // short prisms
-        CreateTriangularPrism(new Vector3(-48, 0.5f, 48), false, true, true);
-        CreateTriangularPrism(new Vector3(-46, 0.5f, 48), false, true, false);
-        CreateTriangularPrism(new Vector3(-44, 0.5f, 48), false, false, true);
-        CreateTriangularPrism(new Vector3(-42, 0.5f, 48), false, false, false);
+        // 4 tall cylinders
+        SpawnCylinderAtIndex(0, true,  true,  true);
+        SpawnCylinderAtIndex(1, true,  true,  false);
+        SpawnCylinderAtIndex(2, true,  false, true);
+        SpawnCylinderAtIndex(3, true,  false, false);
+
+        // 4 short cylinders
+        SpawnCylinderAtIndex(4, false, true,  true);
+        SpawnCylinderAtIndex(5, false, true,  false);
+        SpawnCylinderAtIndex(6, false, false, true);
+        SpawnCylinderAtIndex(7, false, false, false);
+
+        // 4 tall triangular prisms
+        SpawnPrismAtIndex(8,  true,  true,  true);
+        SpawnPrismAtIndex(9,  true,  true,  false);
+        SpawnPrismAtIndex(10, true,  false, true);
+        SpawnPrismAtIndex(11, true,  false, false);
+
+        // 4 short triangular prisms
+        SpawnPrismAtIndex(12, false, true,  true);
+        SpawnPrismAtIndex(13, false, true,  false);
+        SpawnPrismAtIndex(14, false, false, true);
+        SpawnPrismAtIndex(15, false, false, false);
+    }
+
+    Vector3 GetRowPosition(int index, bool tall){
+        float y = tall ? 1f : 0.5f;
+        return new Vector3(
+            pieceRowStart.x + index * pieceSpacing,
+            pieceRowStart.y + y,
+            pieceRowStart.z
+        );
+    }
+
+    void SpawnCylinderAtIndex(int index, bool tall, bool hollow, bool isWhite){
+        CreateCylinder(GetRowPosition(index, tall), tall, hollow, isWhite);
+    }
+
+    void SpawnPrismAtIndex(int index, bool tall, bool hollow, bool isWhite){
+        CreateTriangularPrism(GetRowPosition(index, tall), tall, hollow, isWhite);
     }
 
     void CreateCylinder(Vector3 position, bool tall, bool hollow, bool isWhite){
         GameObject cylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         cylinder.transform.position = position;
         cylinder.transform.localScale = tall ? new Vector3(1f, 1.2f, 1f) : new Vector3(1f, 0.6f, 1f);
+        
+        cylinder.tag = "GamePiece";
+        cylinder.AddComponent<PieceHighlight>();
 
         Material material;
         if (hollow){
@@ -132,6 +159,10 @@ public class GamePieces : MonoBehaviour{
         MeshFilter meshFilter = prism.AddComponent<MeshFilter>();
         MeshRenderer meshRenderer = prism.AddComponent<MeshRenderer>();
         MeshCollider meshCollider = prism.AddComponent<MeshCollider>();
+
+        // Must come AFTER MeshRenderer exists because PieceHighlight requires a Renderer.
+        prism.tag = "GamePiece";
+        prism.AddComponent<PieceHighlight>();
 
         Material material;
         if (hollow){
