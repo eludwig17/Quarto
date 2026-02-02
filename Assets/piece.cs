@@ -119,12 +119,12 @@ public class GamePieces : MonoBehaviour{
             triangles[triIndex + 5] = next + 1;
 
             // Inner wall
-            triangles[triIndex + 6] = current + 2;
-            triangles[triIndex + 7] = current + 3;
-            triangles[triIndex + 8] = next + 2;
-            triangles[triIndex + 9] = next + 2;
-            triangles[triIndex + 10] = current + 3;
-            triangles[triIndex + 11] = next + 3;
+            triangles[triIndex + 6] = current + 3;
+            triangles[triIndex + 7] = current + 2;
+            triangles[triIndex + 8] = next + 3;
+            triangles[triIndex + 9] = next + 3;
+            triangles[triIndex + 10] = current + 2;
+            triangles[triIndex + 11] = next + 2;
 
             // Top ring
             triangles[triIndex + 12] = current + 4;
