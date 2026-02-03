@@ -56,6 +56,8 @@ public class GamePieces : MonoBehaviour{
 
     void CreateCylinder(Vector3 position, bool tall, bool hollow, bool isWhite){
         GameObject cylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        cylinder.name = (tall ? "Tall" : "Short") + (hollow ? "Hollow" : "Solid") + (isWhite ? "White" : "Black") + "Cylinder";
+
         cylinder.transform.position = position;
         cylinder.transform.localScale = tall ? new Vector3(1f, 1.2f, 1f) : new Vector3(1f, 0.6f, 1f);
         
@@ -152,7 +154,9 @@ public class GamePieces : MonoBehaviour{
     }
 
     void CreateTriangularPrism(Vector3 position, bool tall, bool hollow, bool isWhite){
-        GameObject prism = new GameObject((hollow ? "Hollow" : "Solid") + (isWhite ? "White" : "Black") + "Prism");
+        GameObject prism = new GameObject();
+        prism.name = (tall ? "Tall" : "Short") + (hollow ? "Hollow" : "Solid") + (isWhite ? "White" : "Black") + "Prism";
+
         prism.transform.position = position;
         prism.transform.rotation = Quaternion.Euler(-90, 0, 0);
 
