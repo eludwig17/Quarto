@@ -141,6 +141,11 @@ public class BoardController : MonoBehaviour
 
                         if (placementSucceeded){
                             placePiece(pieceSelected, squareSelected);
+                            for (int row = 0; row < 4; row++){
+                                if (gameState != null && gameState.IsWinningRow(row)){
+                                    break;
+                                }
+                            }
                         }
                         else{
                             Debug.Log("You can't place a piece here... spots already taken");

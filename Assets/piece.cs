@@ -62,6 +62,12 @@ public class GamePieces : MonoBehaviour{
         cylinder.tag = "GamePiece";
         cylinder.AddComponent<PieceHighlight>();
 
+        GamePieceTraits traits = cylinder.GetComponent<GamePieceTraits>();
+        if (traits == null){
+            traits = cylinder.AddComponent<GamePieceTraits>();
+        }
+        traits.SetTraits(isTall: tall, isPrism: false, isHollow: hollow, isWhite: isWhite);
+
         Material material;
         if (hollow){
             material = isWhite ? whiteMaterialHollow : blackMaterialHollow;
@@ -163,6 +169,12 @@ public class GamePieces : MonoBehaviour{
         // Must come AFTER MeshRenderer exists because PieceHighlight requires a Renderer.
         prism.tag = "GamePiece";
         prism.AddComponent<PieceHighlight>();
+
+        GamePieceTraits traits = prism.GetComponent<GamePieceTraits>();
+        if (traits == null){
+            traits = prism.AddComponent<GamePieceTraits>();
+        }
+        traits.SetTraits(isTall: tall, isPrism: true, isHollow: hollow, isWhite: isWhite);
 
         Material material;
         if (hollow){
