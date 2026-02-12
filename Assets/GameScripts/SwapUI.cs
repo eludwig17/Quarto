@@ -33,7 +33,7 @@ public class SwapUI : MonoBehaviour
     void OnEnable()
     {
         // Menu enabling/disabling
-        MainMenu.SetActive(true);
+        //MainMenu.SetActive(true);
         HUD.SetActive(false);
 
         // Gives the UIManager access to gamestate info
@@ -48,22 +48,22 @@ public class SwapUI : MonoBehaviour
 
     void Update()
     {
-        if (_gameStarted){
-            UpdateHUD();
-            UpdateGameOverScreen();
-            PauseInput();
-        }
+        // if (_gameStarted){
+        //     UpdateHUD();
+        //     UpdateGameOverScreen();
+        //     PauseInput();
+        // }
     }
 
     public void StartGame()
     {
-        _gameStarted = true;
-
-        MainMenu.SetActive(false);
+        // _gameStarted = true;
+        //
+        // MainMenu.SetActive(false);
         HUD.SetActive(true);
         P1_Name_Display.text = $"Player 1: {P1_Name_Input.text}";
         P2_Name_Display.text = $"Player 2: {P2_Name_Input.text}";
-        _gameManager.InitGame();
+        // _gameManager.InitGame();
 
     }
 
@@ -74,15 +74,15 @@ public class SwapUI : MonoBehaviour
     }
     
     void ShowMainMenu(){
-        _gameStarted = false;
-        _isPaused = false;
-        Time.timeScale = 1f;
-        
-        mainMenuPanel.SetActive(true);
-        hudPage.SetActive(false);
+        // _gameStarted = false;
+        // _isPaused = false;
+        // Time.timeScale = 1f;
+        //
+        // mainMenuPanel.SetActive(true);
+        // hudPage.SetActive(false);
         pauseMenu.SetActive(false);
         gameOverPanel.SetActive(false);
-        quitPage.SetActive(false);
+       // quitPage.SetActive(false);
 
         //Update this line with board controller script more than likely
         //DodgeWaveGameManager.IsGameOver = true;
@@ -92,18 +92,18 @@ public class SwapUI : MonoBehaviour
         
     }
     
-    public void MainMenu(){
-        ShowMainMenu();
-    }
+    // public void MainMenu(){
+    //     ShowMainMenu();
+    // }
     
     public void PauseGame(){
-        _isPaused = true;
+       // _isPaused = true;
         Time.timeScale = 0f;
         pauseMenu.SetActive(true);
     }
     
     public void ResumeGame(){
-        _isPaused = false;
+       // _isPaused = false;
         Time.timeScale = 1f;
         pauseMenu.SetActive(false);
     }
@@ -112,31 +112,31 @@ public class SwapUI : MonoBehaviour
         // update this line for our projects game manager like in showmainmenu function
         //if (DodgeWaveGameManager.IsGameOver)
             return;
-        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P)){
-            if (_isPaused)
-                ResumeGame();
-            else
-                PauseGame();
-        }
+        // if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P)){
+        //     if (_isPaused)
+        //         ResumeGame();
+        //     else
+        //         PauseGame();
+        // }
         
     } 
     
     public void RestartGame(){
         Time.timeScale = 1f;
-        _isPaused = false;
-        _gameStarted = true;
+        // _isPaused = false;
+        // _gameStarted = true;
         gameOverPanel.SetActive(false);
         pauseMenu.SetActive(false);
         
-        _gameManager.InitGame();
+        //_gameManager.InitGame();
     }
     
     public void ShowQuitPage(){
-        quitPage.SetActive(true);
+       // quitPage.SetActive(true);
     }
     
     public void HideQuitPage(){
-        quitPage.SetActive(false);
+        //quitPage.SetActive(false);
     }
 
     public void QuitGame(){

@@ -9730,7 +9730,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1044462549
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10103,6 +10103,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BoardController
   PlayerTurn: Player 1
+  OnTurnPlayed:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &1153653714
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10255,6 +10258,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BoardController
   PlayerTurn: 
+  OnTurnPlayed:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1204592605
 GameObject:
   m_ObjectHideFlags: 0
@@ -16456,12 +16462,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIManager
   MainMenu: {fileID: 1044462548}
   HUD: {fileID: 1405703177}
+  StatusText: {fileID: 108689108}
+  pauseMenu: {fileID: 0}
+  gameOverPanel: {fileID: 0}
   BoardController: {fileID: 1183194565}
   P1_Name_Input: {fileID: 226372560}
   P2_Name_Input: {fileID: 1833795134}
   P1_Name_Display: {fileID: 1856201727}
   P2_Name_Display: {fileID: 1370464033}
-  StatusText: {fileID: 108689108}
 --- !u!1 &2103312340
 GameObject:
   m_ObjectHideFlags: 0
