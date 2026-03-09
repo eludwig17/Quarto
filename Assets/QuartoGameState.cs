@@ -74,88 +74,77 @@ public class GameState : MonoBehaviour
 
     public bool CheckRowForWin(int row)
     {
-        bool same_color = true;
-        bool same_height = true;
-        bool same_shape = true;
-        bool same_hollowness = true;
-
-
-        // Material first_material = null;
-        // float first_height = 0.0f;
-        // string first_shape = "";
-        // string first_hollow = "";
-
-        Height first_height;
-        Hollowness first_hollowness;
-        Color first_color;
-        Shape first_shape;
-
-
-        // naming scheme: TallHollowWhiteCylinder
-        //                HeightHollownessColorShape
-
-        if (boardPieces[row, 0] == null) return false;
-
-        GetFullShapeInfo(boardPieces[row, 0].name, out first_height, out first_hollowness, out first_color, out first_shape);
-
-        for (int i = 0; i < 4; i++)
-        {
-
-            if (boardPieces[row, i] == null) return false;
-
-            string piece_name = boardPieces[row, i].name;
-
-            if (piece_name != null)
-            {
-                if (i > 0)
-                {
-
-                    // Gets all the relevant info of a piece
-                    GetFullShapeInfo(piece_name, out Height piece_height, out Hollowness piece_hollowness, out Color piece_color, out Shape piece_shape);
-
-                    if (piece_color != first_color)
-                    {
-                        same_color = false;
-                    }
-
-                    if (piece_height != first_height)
-                    {
-                        same_height = false;
-                    }
-
-                    if (piece_shape != first_shape)
-                    {
-                        same_shape = false;
-                    }
-
-                    if (piece_hollowness != first_hollowness)
-                    {
-                        same_hollowness = false;
-                    }
-                }
-
-            }
-            else // row is not full
-            {
-                return false;
-            }
-
-        }
-
-
-        return same_color | same_height | same_hollowness | same_shape;
+        if (row < 0 || row > 3) return false;
+        
+        return CheckLineForWin(
+            boardPieces[0, row],
+            boardPieces[1, row],
+            boardPieces[2, row],
+            boardPieces[3, row]
+        );
     }
 
     public bool CheckColumnForWin(int column)
     {
-        return false;
-
+        if (column < 0 || column > 3) return false;
+        
+        return CheckLineForWin(
+            boardPieces[0, column],
+            boardPieces[1, column],
+            boardPieces[2, column],
+            boardPieces[3, column]
+            );
     }
 
     public bool CheckDiagonalForWin(int diagonal)
     {
+        if (diagonal == 0)
+        {
+            return CheckLineForWin(
+                boardPieces[0, 0],
+                boardPieces[1, 1],
+                boardPieces[2, 2],
+                boardPieces[3, 3]
+            );
+        }
+        else if (diagonal == 1)
+        {
+            return CheckLineForWin(
+                boardPieces[0, 3],
+                boardPieces[1, 2],
+                boardPieces[2, 1],
+                boardPieces[3, 0]
+            );
+        }
+
         return false;
 
+    }
+
+    private bool CheckLineForWin(GameObject a, GameObject b, GameObject c, GameObject d)
+    {
+        if (a == null || b == null || c == null || d == null) return false;
+        
+        GetFullShapeInfo(a.name, out Height firstHeight, out Hollowness firstHollowness, out Color firstColor, 
+            out Shape firstShape);
+
+        bool sameColor = true;
+        bool sameHeight = true;
+        bool sameShape = true;
+        bool sameHollowness = true;
+        
+        GameObject[] line = {b, c, d};
+
+        foreach (GameObject piece in line)
+        {
+            GetFullShapeInfo(piece.name, out Height pieceHeight, out Hollowness pieceHollow, out Color pieceColor,
+                out Shape pieceShape);
+            if (pieceColor != firstColor) sameColor = false;
+            if (pieceHeight != firstHeight) sameHeight = false;
+            if (pieceShape != firstShape) sameShape = false;
+            if (pieceHollow != firstHollowness) sameHollowness = false;
+        }
+        return sameColor || sameHeight || sameShape || sameHollowness;
     }
 
     // some code in this function is from ChatGPT, idea from Geist
