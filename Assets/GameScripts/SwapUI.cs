@@ -27,116 +27,155 @@ public class SwapUI : MonoBehaviour
     public TextMeshProUGUI P1_Name_Display;
     public TextMeshProUGUI P2_Name_Display;
     
+    private bool isSubscribed = false;
+    
 
    // public string PlayerTurn;
 
+   void Awake()
+   {
+       SetUIState_MainMenu();
+
+       if (BoardController == null)
+       {
+           boardControllerScript = BoardController.GetComponent<BoardControllerScript>();
+           if (boardControllerScript == null)
+           {
+               Debug.LogError($"Board Controller not found on {BoardController.name}");
+           }
+       }
+   }
+   
     void OnEnable()
     {
-        // Menu enabling/disabling
-        //MainMenu.SetActive(true);
-        HUD.SetActive(false);
+        if (BoardController == null)
+        {
+            Debug.Log("SwapUI: Board Controller is not assigned yet");
+            return;
+        }
 
-        // Gives the UIManager access to gamestate info
         boardControllerScript = BoardController.GetComponent<BoardControllerScript>();
-        Debug.Log(boardControllerScript.gameObject.name);
-        
-        //Debug.Log(boardControllerScript == null); // this outputs false; why is the event not working?
+        if (boardControllerScript == null)
+        {
+            Debug.LogError("SwapUI: BoardControllerScript missing on BoardController.");
+            return;
+        }
         
         boardControllerScript.OnTurnPlayed.AddListener(UpdateTurnText);
+        
+        SubscribeToBoardEvents();
     }
 
-
-    void Update()
+    void OnDisable()
     {
-        // if (_gameStarted){
-        //     UpdateHUD();
-        //     UpdateGameOverScreen();
-        //     PauseInput();
-        // }
+        if (boardControllerScript != null)
+        {
+            boardControllerScript.OnTurnPlayed.RemoveListener(UpdateTurnText);
+        }
+        UnsubscribeFromBoardEvents();
+    }
+
+    private void SubscribeToBoardEvents()
+    {
+        if (isSubscribed) return;
+        if (boardControllerScript == null) return;
+        
+        boardControllerScript.OnTurnPlayed.AddListener(UpdateTurnText);
+        isSubscribed = true;
+    }
+
+    private void UnsubscribeFromBoardEvents()
+    {
+        if (!isSubscribed) return;
+        if (boardControllerScript == null) return;
+        
+        boardControllerScript.OnTurnPlayed.RemoveListener(UpdateTurnText);
+        isSubscribed = false;
     }
 
     public void StartGame()
     {
-        // _gameStarted = true;
-        //
-        // MainMenu.SetActive(false);
-        HUD.SetActive(true);
-        P1_Name_Display.text = $"Player 1: {P1_Name_Input.text}";
-        P2_Name_Display.text = $"Player 2: {P2_Name_Input.text}";
-        // _gameManager.InitGame();
+       Time.timeScale = 1f;
 
+       SetUIState_HUD();
+       
+       string p1Name = (P1_Name_Input != null && !string.IsNullOrWhiteSpace(P1_Name_Input.text))
+           ? P1_Name_Input.text
+           : "Player 1";
+
+       string p2Name = (P2_Name_Input != null && !string.IsNullOrWhiteSpace(P2_Name_Input.text))
+           ? P2_Name_Input.text
+           : "Player 2";
+
+       if (P1_Name_Display != null) P1_Name_Display.text = $"Player 1: {p1Name}";
+       if (P2_Name_Display != null) P2_Name_Display.text = $"Player 2: {p2Name}";
+       
+       if (StatusText != null) StatusText.text = "Game Status: Starting...";
     }
 
-    void UpdateTurnText(string text)
+    void UpdateTurnText(string currentPlayerName)
     {
-        StatusText.text = $"Game Status: {text}'s Turn";
-        Debug.Log("Lol!");
-    }
-    
-    void ShowMainMenu(){
-        // _gameStarted = false;
-        // _isPaused = false;
-        // Time.timeScale = 1f;
-        //
-        // mainMenuPanel.SetActive(true);
-        // hudPage.SetActive(false);
-        pauseMenu.SetActive(false);
-        gameOverPanel.SetActive(false);
-       // quitPage.SetActive(false);
-
-        //Update this line with board controller script more than likely
-        //DodgeWaveGameManager.IsGameOver = true;
-    }
-    
-    public void PlayGame(){
+        if (StatusText == null) return;
         
+        StatusText.text = $"Game Status: {currentPlayerName}'s Turn";
+        //Debug.Log($"Game Status: {currentPlayerName}'s Turn");
     }
     
-    // public void MainMenu(){
-    //     ShowMainMenu();
-    // }
+    public void ShowMainMenu(){
+        Time.timeScale = 1f;
+        SetUIState_MainMenu();
+    }
+
+    public void ShowGameOver()
+    {
+        Time.timeScale = 0f;
+        
+        if (gameOverPanel != null) gameOverPanel.SetActive(true);
+        if (pauseMenu != null) pauseMenu.SetActive(false);
+    }
+
+    private void SetUIState_MainMenu()
+    {
+        if (MainMenu != null) MainMenu.SetActive(true);
+        if (HUD != null) HUD.SetActive(false);
+        if (pauseMenu != null) pauseMenu.SetActive(false);
+        if (gameOverPanel != null) gameOverPanel.SetActive(false);
+    }
+
+    private void SetUIState_HUD()
+    {
+        if (HUD != null) HUD.SetActive(true);
+        if (pauseMenu != null) pauseMenu.SetActive(false);
+        if (gameOverPanel != null) gameOverPanel.SetActive(false);
+        if (MainMenu != null) MainMenu.SetActive(false);
+    }
+
+    private void SetUIState_Pause()
+    {
+        if (gameOverPanel != null) gameOverPanel.SetActive(false);
+        if (pauseMenu != null) pauseMenu.SetActive(true);
+        if (HUD  != null) HUD.SetActive(true);
+        if (MainMenu != null) MainMenu.SetActive(false);
+    }
     
     public void PauseGame(){
-       // _isPaused = true;
         Time.timeScale = 0f;
-        pauseMenu.SetActive(true);
+        SetUIState_Pause();
     }
     
     public void ResumeGame(){
-       // _isPaused = false;
         Time.timeScale = 1f;
-        pauseMenu.SetActive(false);
+        SetUIState_HUD();
     }
-    
-    void PauseInput(){
-        // update this line for our projects game manager like in showmainmenu function
-        //if (DodgeWaveGameManager.IsGameOver)
-            return;
-        // if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P)){
-        //     if (_isPaused)
-        //         ResumeGame();
-        //     else
-        //         PauseGame();
-        // }
-        
-    } 
     
     public void RestartGame(){
         Time.timeScale = 1f;
-        // _isPaused = false;
-        // _gameStarted = true;
-        gameOverPanel.SetActive(false);
-        pauseMenu.SetActive(false);
         
-        //_gameManager.InitGame();
-    }
-    
-    public void ShowQuitPage(){
-       // quitPage.SetActive(true);
-    }
-    
-    public void HideQuitPage(){
-        //quitPage.SetActive(false);
+        if (gameOverPanel != null) gameOverPanel.SetActive(false);
+        if (pauseMenu != null) pauseMenu.SetActive(false);
+
+        SetUIState_HUD();
+        if (StatusText != null) StatusText.text = "Game Status: Restart...";
     }
 
     public void QuitGame(){

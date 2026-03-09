@@ -15,9 +15,10 @@ public class BoardControllerScript : MonoBehaviour
 
     private GameState gameState;
     public string PlayerTurn;
-    public UnityEvent<string> OnTurnPlayed; // Creates an "Action" event that carries a string; this allows for easy communication between scripts (A la chatgpt)
+    
+    [SerializeField] public UnityEvent<string> OnTurnPlayed = new UnityEvent<string>();
 
-    void Start()
+    void Awake()
     {
         // squareDict = new Dictionary<string, GameObject>();
         cam = Camera.main;
@@ -26,10 +27,8 @@ public class BoardControllerScript : MonoBehaviour
         squareSelected = null;
         hoveredPiece = null;
         hoveredSquare = null;
-
-        gameState = FindObjectOfType<GameState>();
+        
         PlayerTurn = "Player 1";
-        OnTurnPlayed = new UnityEvent<string>();
 
     }
 
