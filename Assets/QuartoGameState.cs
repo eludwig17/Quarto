@@ -4,6 +4,30 @@ using UnityEngine;
 public class GameState : MonoBehaviour
 {
     public static GameState Instance { get; private set; }
+    
+    private enum Shape
+    {
+        Cylinder,
+        Prism
+    }
+
+    private enum Hollowness
+    {
+        Hollow,
+        Solid
+    }
+
+    private enum Height
+    {
+        Tall,
+        Short
+    }
+
+    private enum Color
+    {
+        White,
+        Black
+    }
 
     public List<GameObject> unplacedPieces = new List<GameObject>();
     public GameObject[,] boardPieces = new GameObject[4, 4];
@@ -50,72 +74,81 @@ public class GameState : MonoBehaviour
 
     public bool CheckRowForWin(int row)
     {
-        bool same_material = true;
-        bool same_height = true;
-        bool same_shape = true;
-        bool same_emptiness = false;
-
-
-        Material first_material = null;
-        float first_height = 0.0f;
-        string first_shape = "";
-        string first_hollow = "";
-
-        for (int i = 0; i < 4; i++)
-        {
-            GameObject piece = boardPieces[row, i];
-
-            if (boardPieces[row, i] != null)
-            {
-            MeshRenderer mesh_renderer = piece.GetComponent<MeshRenderer>();
-                if (i > 0)
-                {
-                    if (mesh_renderer.material != first_material)
-                    {
-                        same_material = false;
-                    }
-
-                    if (mesh_renderer.bounds.size.y >= 2 * first_height || mesh_renderer.bounds.size.y <= first_height / 2) // give it some buffer room
-                    {
-                        same_height = false;
-                    }
-
-                    if (GetShapeType(piece.name) != first_shape)
-                    {
-                        same_shape = false;
-                    }
-                }
-                else
-                {
-                    first_material = mesh_renderer.material;
-                    first_height = mesh_renderer.bounds.size.y;
-                    first_shape = GetShapeType(piece.name);
-                }
-            } else // row is not full
-            {
-                return false; 
-            }
-
-        }
-
-
-        return same_material | same_height | same_emptiness | same_shape;
+        if (row < 0 || row > 3) return false;
+        
+        return CheckLineForWin(
+            boardPieces[0, row],
+            boardPieces[1, row],
+            boardPieces[2, row],
+            boardPieces[3, row]
+        );
     }
 
     public bool CheckColumnForWin(int column)
     {
-        return false;
-
+        if (column < 0 || column > 3) return false;
+        
+        return CheckLineForWin(
+            boardPieces[0, column],
+            boardPieces[1, column],
+            boardPieces[2, column],
+            boardPieces[3, column]
+            );
     }
 
     public bool CheckDiagonalForWin(int diagonal)
     {
+        if (diagonal == 0)
+        {
+            return CheckLineForWin(
+                boardPieces[0, 0],
+                boardPieces[1, 1],
+                boardPieces[2, 2],
+                boardPieces[3, 3]
+            );
+        }
+        else if (diagonal == 1)
+        {
+            return CheckLineForWin(
+                boardPieces[0, 3],
+                boardPieces[1, 2],
+                boardPieces[2, 1],
+                boardPieces[3, 0]
+            );
+        }
+
         return false;
 
     }
 
-    // most of code in this function is from ChatGPT, idea from Geist
-    string GetShapeType(string name)
+    private bool CheckLineForWin(GameObject a, GameObject b, GameObject c, GameObject d)
+    {
+        if (a == null || b == null || c == null || d == null) return false;
+        
+        GetFullShapeInfo(a.name, out Height firstHeight, out Hollowness firstHollowness, out Color firstColor, 
+            out Shape firstShape);
+
+        bool sameColor = true;
+        bool sameHeight = true;
+        bool sameShape = true;
+        bool sameHollowness = true;
+        
+        GameObject[] line = {b, c, d};
+
+        foreach (GameObject piece in line)
+        {
+            GetFullShapeInfo(piece.name, out Height pieceHeight, out Hollowness pieceHollow, out Color pieceColor,
+                out Shape pieceShape);
+            if (pieceColor != firstColor) sameColor = false;
+            if (pieceHeight != firstHeight) sameHeight = false;
+            if (pieceShape != firstShape) sameShape = false;
+            if (pieceHollow != firstHollowness) sameHollowness = false;
+        }
+        return sameColor || sameHeight || sameShape || sameHollowness;
+    }
+
+    // some code in this function is from ChatGPT, idea from Geist
+    string GetShape(string name)
     {
 
         int start = -1;
@@ -134,4 +167,19 @@ public class GameState : MonoBehaviour
         return result;
 
     }
+
+    // naming scheme: TallHollowWhiteCylinder
+    //                HeightHollownessColorShape
+
+    // Outputs the enum type of each category for the given shape
+    void GetFullShapeInfo(string name, out Height height, out Hollowness hollow, out Color material, out Shape shape)
+    {
+        
+        height = name.Contains("Tall") ? Height.Tall : Height.Short;
+        hollow = name.Contains("Hollow") ? Hollowness.Hollow : Hollowness.Solid;
+        material = name.Contains("White") ? Color.White : Color.Black;
+        shape = name.Contains("Cylinder") ? Shape.Cylinder : Shape.Prism;
+
+    }
+
 }
