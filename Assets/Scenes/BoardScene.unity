@@ -5480,7 +5480,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BoardSquare
   row: 3
-  col: 3
+  col: 2
   hoverColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
 --- !u!1 &750671709
 GameObject:
