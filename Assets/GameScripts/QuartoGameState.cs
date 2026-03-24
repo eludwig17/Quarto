@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Alteruna;
 using UnityEngine;
 
@@ -30,8 +31,50 @@ public class GameState : AttributesSync
         Black
     }
 
-    [SynchronizableField] public List<GameObject> unplacedPieces = new List<GameObject>();
-    [SynchronizableField] public GameObject[,] boardPieces = new GameObject[4, 4];
+    public List<GameObject> unplacedPieces = new List<GameObject>();
+    public GameObject[,] boardPieces = new GameObject[4, 4];
+    [SynchronizableField] private int currentTurnPlayerIndex = 0;
+
+    public bool IsInRoom{
+        get { return Multiplayer != null && Multiplayer.InRoom; }
+    }
+
+    public int UserCount{
+        get{
+            if (Multiplayer == null || Multiplayer.CurrentRoom == null || Multiplayer.CurrentRoom.Users == null){
+                return 0;
+            }
+
+            return Multiplayer.CurrentRoom.Users.Count;
+        }
+    }
+
+    public bool CanPlay{
+        get { return IsInRoom && UserCount >= 2; }
+    }
+
+    public int GetGamePlayerIndex(ushort alterunaUserIndex){
+        if (Multiplayer == null || Multiplayer.CurrentRoom == null || Multiplayer.CurrentRoom.Users == null || Multiplayer.CurrentRoom.Users.Count < 2){
+            return -1;
+        }
+
+        var sorted = Multiplayer.CurrentRoom.Users.OrderBy(u => u.Index).ToList();
+        for (int i = 0; i < sorted.Count; i++){
+            if (sorted[i].Index == alterunaUserIndex){
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    public bool IsLocalPlayersTurn{
+        get{
+            if (!CanPlay || Multiplayer == null || Multiplayer.Me == null) return false;
+            int myPlayer = GetGamePlayerIndex((ushort)Multiplayer.Me.Index);
+            return myPlayer >= 0 && myPlayer == currentTurnPlayerIndex;
+        }
+    }
 
     private void Awake()
     {
@@ -45,10 +88,50 @@ public class GameState : AttributesSync
 
     private void Start()
     {
+        if (Multiplayer == null){
+            Multiplayer = FindFirstObjectByType<Multiplayer>();
+        }
         GameObject[] piecesInScene = GameObject.FindGameObjectsWithTag("GamePiece");
         unplacedPieces.AddRange(piecesInScene);
     }
 
+    public void RequestPlacePiece(int pieceIndex, int row, int col){
+        if (!CanPlay || !IsLocalPlayersTurn || Multiplayer == null || Multiplayer.Me == null) return;
+        BroadcastRemoteMethod(nameof(PlacePieceNetwork), (ushort)Multiplayer.Me.Index, pieceIndex, row, col);
+    }
+
+    [SynchronizableMethod]
+    private void PlacePieceNetwork(ushort fromUserIndex, int pieceIndex, int row, int col){
+        if (pieceIndex < 0 || pieceIndex > 15 || row < 0 || row > 3 || col < 0 || col > 3) return;
+
+        if (!CanPlay) return;
+
+        int fromPlayer = GetGamePlayerIndex(fromUserIndex);
+        if (fromPlayer < 0 || fromPlayer != currentTurnPlayerIndex) return;
+
+        QuartoPieceIndexRegistry pieceReg = FindFirstObjectByType<QuartoPieceIndexRegistry>();
+        QuartoBoardSquareRegistry squareReg = FindFirstObjectByType<QuartoBoardSquareRegistry>();
+        BoardControllerScript board = FindFirstObjectByType<BoardControllerScript>();
+
+        if (pieceReg == null || squareReg == null || board == null) return;
+
+        GameObject piece = pieceReg.GetPiece((byte)pieceIndex);
+        BoardSquare square = squareReg.Get(row, col);
+        if (piece == null || square == null) return;
+
+        if (boardPieces[row, col] != null) return;
+        if (!unplacedPieces.Contains(piece)) return;
+
+        boardPieces[row, col] = piece;
+        unplacedPieces.Remove(piece);
+
+        currentTurnPlayerIndex = 1 - currentTurnPlayerIndex;
+        Commit();
+
+        board.ApplyNetworkMove(piece, square.gameObject);
+        board.OnNetworkTurnChanged(currentTurnPlayerIndex);
+    }
+    
     public bool TryPlacePiece(GameObject piece, GameObject square)
     {
         if (piece == null || square == null) return false;

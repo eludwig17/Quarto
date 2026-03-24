@@ -16,6 +16,8 @@ public class BoardControllerScript : MonoBehaviour
 
     // [Alteruna.Synchronizable]
     public GameState gameState;
+    // make sure to map for networked gameplayer & it maps the gameObjects to indices
+    public QuartoPieceIndexRegistry pieceIndexRegistry;
     public string PlayerTurn;
     
     [SerializeField] public UnityEvent<string> OnTurnPlayed = new UnityEvent<string>();
@@ -34,9 +36,25 @@ public class BoardControllerScript : MonoBehaviour
 
     }
 
+    void Start(){
+        if (gameState == null)
+            gameState = GameState.Instance;
+        if (pieceIndexRegistry == null)
+            pieceIndexRegistry = GetComponentInChildren<QuartoPieceIndexRegistry>();
+    }
+
+    bool UseNetworkPlay() => gameState != null && gameState.CanPlay;
+
+    bool BlockInputNotMyTurn() => gameState != null && gameState.IsInRoom && (!gameState.CanPlay || !gameState.IsLocalPlayersTurn);
+    
+
     void Update()
     {
         UpdateHoverHighlights();
+        if (gameState != null && gameState.IsInRoom)
+            PlayerTurn = gameState.CanPlay
+                ? (gameState.IsLocalPlayersTurn ? "Your turn" : "Opponent's turn")
+                : "Waiting for opponent";
         playTurn();
 
     }
@@ -118,6 +136,8 @@ public class BoardControllerScript : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
+            if (BlockInputNotMyTurn())
+                return;
             if (!pieceSelected)
             {
                 GameObject temp = getObjectClickedOn();
@@ -153,8 +173,22 @@ public class BoardControllerScript : MonoBehaviour
                         squareSelected = temp;
                         //Debug.Log($"Selecting square {squareSelected.name}");
 
-                        bool placementSucceeded = true;
-                        if (gameState != null)
+                        bool placementSucceeded = false;
+
+                        if (UseNetworkPlay()){
+                            if (pieceIndexRegistry != null && pieceIndexRegistry.TryGetIndex(pieceSelected, out byte pIdx)){
+                                BoardSquare bs = squareSelected.GetComponent<BoardSquare>();
+                                if (bs != null){
+                                    gameState.RequestPlacePiece(pIdx, bs.row, bs.col);
+                                    placementSucceeded = true;
+                                    OnTurnPlayed?.Invoke("Waiting…");
+                                }
+                            }
+                            else{
+                                Debug.LogWarning("This game piece isn't in the registry");
+                            }
+                        }
+                        else if (gameState != null)
                         {
                             placementSucceeded = gameState.TryPlacePiece(pieceSelected, squareSelected);
                         }
@@ -205,6 +239,16 @@ public class BoardControllerScript : MonoBehaviour
         }
 
 
+    }
+
+    public void ApplyNetworkMove(GameObject piece, GameObject square){
+        placePiece(piece, square);
+    }
+
+    public void OnNetworkTurnChanged(int currentTurnPlayerIndex){
+        bool mine = gameState != null && gameState.IsLocalPlayersTurn;
+        PlayerTurn = mine ? "Your turn" : "Opponent's turn";
+        OnTurnPlayed?.Invoke(PlayerTurn);
     }
 
     void placePiece(GameObject piece, GameObject square)
