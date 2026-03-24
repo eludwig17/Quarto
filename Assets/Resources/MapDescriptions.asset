@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fc813b8b66f1f8458eba9ac243859b2, type: 3}
   m_Name: MapDescriptions
   m_EditorClassIdentifier: Assembly-CSharp::Alteruna.MapDescriptions
-  ChangeSceneOnRoomJoined: 1
+  ChangeSceneOnRoomJoined: 0
   DefaultImage: {fileID: 21300000, guid: 8033bab9b349e844d89258d1cbef31c6, type: 3}
   DescriptionItems:
   - Hidden: 0
