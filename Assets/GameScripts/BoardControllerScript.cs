@@ -7,13 +7,15 @@ public class BoardControllerScript : MonoBehaviour
 {
     Camera cam; // from Unity official docs
     //private Dictionary<string, GameObject> squareDict; // all squareDict code was useful for referencing squares by name
-    private GameObject pieceSelected;
+    
+    public GameObject pieceSelected;
     private GameObject squareSelected;
 
     private GameObject hoveredPiece;
     private GameObject hoveredSquare;
 
-    private GameState gameState;
+    // [Alteruna.Synchronizable]
+    public GameState gameState;
     public string PlayerTurn;
     
     [SerializeField] public UnityEvent<string> OnTurnPlayed = new UnityEvent<string>();

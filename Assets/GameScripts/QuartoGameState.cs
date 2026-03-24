@@ -1,7 +1,8 @@
 using System.Collections.Generic;
+using Alteruna;
 using UnityEngine;
 
-public class GameState : MonoBehaviour
+public class GameState : AttributesSync
 {
     public static GameState Instance { get; private set; }
     
@@ -29,8 +30,8 @@ public class GameState : MonoBehaviour
         Black
     }
 
-    public List<GameObject> unplacedPieces = new List<GameObject>();
-    public GameObject[,] boardPieces = new GameObject[4, 4];
+    [SynchronizableField] public List<GameObject> unplacedPieces = new List<GameObject>();
+    [SynchronizableField] public GameObject[,] boardPieces = new GameObject[4, 4];
 
     private void Awake()
     {
@@ -66,8 +67,6 @@ public class GameState : MonoBehaviour
         // places piece & updates state
         boardPieces[row, col] = piece;
         unplacedPieces.Remove(piece);
-
-        print(CheckRowForWin(row));
 
         return true;
     }
