@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class SwapUI : MonoBehaviour
 {
@@ -170,10 +171,7 @@ public class SwapUI : MonoBehaviour
     
     public void RestartGame(){
         Time.timeScale = 1f;
-        
-        if (gameOverPanel != null) gameOverPanel.SetActive(false);
-        if (pauseMenu != null) pauseMenu.SetActive(false);
-
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         SetUIState_HUD();
         if (StatusText != null) StatusText.text = "Game Status: Restart...";
     }
