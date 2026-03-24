@@ -16475,7 +16475,7 @@ MonoBehaviour:
   MainMenu: {fileID: 1044462548}
   HUD: {fileID: 1405703177}
   StatusText: {fileID: 108689108}
-  pauseMenu: {fileID: 0}
+  pauseMenu: {fileID: 293116664}
   gameOverPanel: {fileID: 0}
   BoardController: {fileID: 1183194565}
   P1_Name_Input: {fileID: 226372560}
