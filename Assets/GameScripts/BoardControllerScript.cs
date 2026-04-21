@@ -19,6 +19,7 @@ public class BoardControllerScript : MonoBehaviour
     // make sure to map for networked gameplayer & it maps the gameObjects to indices
     public QuartoPieceIndexRegistry pieceIndexRegistry;
     public string PlayerTurn;
+    [SerializeField] private bool _inputEnabled = false;
     
     [SerializeField] public UnityEvent<string> OnTurnPlayed = new UnityEvent<string>();
 
@@ -33,6 +34,7 @@ public class BoardControllerScript : MonoBehaviour
         hoveredSquare = null;
         
         PlayerTurn = "Player 1";
+        _inputEnabled = false;
 
     }
 
@@ -46,10 +48,16 @@ public class BoardControllerScript : MonoBehaviour
     bool UseNetworkPlay() => gameState != null && gameState.CanPlay;
 
     bool BlockInputNotMyTurn() => gameState != null && gameState.IsInRoom && (!gameState.CanPlay || !gameState.IsLocalPlayersTurn);
+    bool BlockInputDisabled() => !_inputEnabled;
     
 
     void Update()
     {
+        if (BlockInputDisabled()){
+            ClearTransientSelectionState();
+            return;
+        }
+
         UpdateHoverHighlights();
         if (gameState != null && gameState.IsInRoom)
             PlayerTurn = gameState.CanPlay
@@ -239,6 +247,40 @@ public class BoardControllerScript : MonoBehaviour
         }
 
 
+    }
+
+    public void SetInputEnabled(bool enabled){
+        _inputEnabled = enabled;
+        if (!_inputEnabled){
+            ClearTransientSelectionState();
+        }
+    }
+
+    private void ClearTransientSelectionState(){
+        if (pieceSelected != null){
+            PieceHighlight pieceHighlight = pieceSelected.GetComponent<PieceHighlight>();
+            if (pieceHighlight != null){
+                pieceHighlight.SetSelected(false);
+                pieceHighlight.SetHovered(false);
+            }
+        }
+        if (hoveredPiece != null && hoveredPiece != pieceSelected){
+            PieceHighlight pieceHighlight = hoveredPiece.GetComponent<PieceHighlight>();
+            if (pieceHighlight != null){
+                pieceHighlight.SetHovered(false);
+            }
+        }
+        if (hoveredSquare != null){
+            BoardSquare boardSquare = hoveredSquare.GetComponent<BoardSquare>();
+            if (boardSquare != null){
+                boardSquare.SetHovered(false);
+            }
+        }
+
+        pieceSelected = null;
+        squareSelected = null;
+        hoveredPiece = null;
+        hoveredSquare = null;
     }
 
     public void ApplyNetworkMove(GameObject piece, GameObject square){
