@@ -1,6 +1,8 @@
+using Alteruna;
 using UnityEngine;
 
-public class GamePieces : MonoBehaviour{
+public class GamePieces : MonoBehaviour
+{
     [Header("Material assets")]
     public Material whiteMaterial;
     public Material blackMaterial;
@@ -11,33 +13,35 @@ public class GamePieces : MonoBehaviour{
     public Vector3 pieceRowStart = new Vector3(-15f, 0f, 0f);
     public float pieceSpacing = 1.5f;
 
-    void Start(){
+    void Start()
+    {
         // 4 tall cylinders
-        SpawnCylinderAtIndex(0, true,  true,  true);
-        SpawnCylinderAtIndex(1, true,  true,  false);
-        SpawnCylinderAtIndex(2, true,  false, true);
-        SpawnCylinderAtIndex(3, true,  false, false);
+        SpawnCylinderAtIndex(0, true, true, true);
+        SpawnCylinderAtIndex(1, true, true, false);
+        SpawnCylinderAtIndex(2, true, false, true);
+        SpawnCylinderAtIndex(3, true, false, false);
 
         // 4 short cylinders
-        SpawnCylinderAtIndex(4, false, true,  true);
-        SpawnCylinderAtIndex(5, false, true,  false);
+        SpawnCylinderAtIndex(4, false, true, true);
+        SpawnCylinderAtIndex(5, false, true, false);
         SpawnCylinderAtIndex(6, false, false, true);
         SpawnCylinderAtIndex(7, false, false, false);
 
         // 4 tall triangular prisms
-        SpawnPrismAtIndex(8,  true,  true,  true);
-        SpawnPrismAtIndex(9,  true,  true,  false);
-        SpawnPrismAtIndex(10, true,  false, true);
-        SpawnPrismAtIndex(11, true,  false, false);
+        SpawnPrismAtIndex(8, true, true, true);
+        SpawnPrismAtIndex(9, true, true, false);
+        SpawnPrismAtIndex(10, true, false, true);
+        SpawnPrismAtIndex(11, true, false, false);
 
         // 4 short triangular prisms
-        SpawnPrismAtIndex(12, false, true,  true);
-        SpawnPrismAtIndex(13, false, true,  false);
+        SpawnPrismAtIndex(12, false, true, true);
+        SpawnPrismAtIndex(13, false, true, false);
         SpawnPrismAtIndex(14, false, false, true);
         SpawnPrismAtIndex(15, false, false, false);
     }
 
-    Vector3 GetRowPosition(int index, bool tall){
+    Vector3 GetRowPosition(int index, bool tall)
+    {
         float y = tall ? 1f : 0.5f;
         return new Vector3(
             pieceRowStart.x + index * pieceSpacing,
@@ -46,42 +50,51 @@ public class GamePieces : MonoBehaviour{
         );
     }
 
-    void SpawnCylinderAtIndex(int index, bool tall, bool hollow, bool isWhite){
+    void SpawnCylinderAtIndex(int index, bool tall, bool hollow, bool isWhite)
+    {
         CreateCylinder(GetRowPosition(index, tall), tall, hollow, isWhite);
     }
 
-    void SpawnPrismAtIndex(int index, bool tall, bool hollow, bool isWhite){
+    void SpawnPrismAtIndex(int index, bool tall, bool hollow, bool isWhite)
+    {
         CreateTriangularPrism(GetRowPosition(index, tall), tall, hollow, isWhite);
     }
 
-    void CreateCylinder(Vector3 position, bool tall, bool hollow, bool isWhite){
+    void CreateCylinder(Vector3 position, bool tall, bool hollow, bool isWhite)
+    {
         GameObject cylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        cylinder.AddComponent<TransformSynchronizable>();
+        
         cylinder.name = (tall ? "Tall" : "Short") + (hollow ? "Hollow" : "Solid") + (isWhite ? "White" : "Black") + "Cylinder";
 
         cylinder.transform.position = position;
         cylinder.transform.localScale = tall ? new Vector3(1f, 1.2f, 1f) : new Vector3(1f, 0.6f, 1f);
-        
+
         cylinder.tag = "GamePiece";
         cylinder.AddComponent<PieceHighlight>();
 
         Material material;
-        if (hollow){
+        if (hollow)
+        {
             material = isWhite ? whiteMaterialHollow : blackMaterialHollow;
             MakeHollow(cylinder);
         }
-        else{
+        else
+        {
             material = isWhite ? whiteMaterial : blackMaterial;
         }
 
         cylinder.GetComponent<Renderer>().material = material;
     }
 
-    void MakeHollow(GameObject outer){
+    void MakeHollow(GameObject outer)
+    {
         MeshFilter meshFilter = outer.GetComponent<MeshFilter>();
         meshFilter.mesh = CreateHollowCylinderMesh(0.5f, 0.35f, 2f, 32);
     }
 
-    Mesh CreateHollowCylinderMesh(float outerRadius, float innerRadius, float height, int segments){
+    Mesh CreateHollowCylinderMesh(float outerRadius, float innerRadius, float height, int segments)
+    {
         Mesh mesh = new Mesh();
         int vertexCount = segments * 8;
         int triangleCount = segments * 8;
@@ -90,7 +103,8 @@ public class GamePieces : MonoBehaviour{
         int[] triangles = new int[triangleCount * 3];
         float angleStep = 2f * Mathf.PI / segments;
 
-        for (int i = 0; i < segments; i++){
+        for (int i = 0; i < segments; i++)
+        {
             float angle = i * angleStep;
             float cos = Mathf.Cos(angle);
             float sin = Mathf.Sin(angle);
@@ -107,7 +121,8 @@ public class GamePieces : MonoBehaviour{
             vertices[baseIndex + 6] = new Vector3(cos * outerRadius, -height / 2, sin * outerRadius);
             vertices[baseIndex + 7] = new Vector3(cos * innerRadius, -height / 2, sin * innerRadius);
         }
-        for (int i = 0; i < segments; i++){
+        for (int i = 0; i < segments; i++)
+        {
             int current = i * 8;
             int next = ((i + 1) % segments) * 8;
             int triIndex = i * 24;
@@ -153,8 +168,11 @@ public class GamePieces : MonoBehaviour{
         return mesh;
     }
 
-    void CreateTriangularPrism(Vector3 position, bool tall, bool hollow, bool isWhite){
+    void CreateTriangularPrism(Vector3 position, bool tall, bool hollow, bool isWhite)
+    {
         GameObject prism = new GameObject();
+        prism.AddComponent<TransformSynchronizable>();
+
         prism.name = (tall ? "Tall" : "Short") + (hollow ? "Hollow" : "Solid") + (isWhite ? "White" : "Black") + "Prism";
 
         prism.transform.position = position;
@@ -169,11 +187,13 @@ public class GamePieces : MonoBehaviour{
         prism.AddComponent<PieceHighlight>();
 
         Material material;
-        if (hollow){
+        if (hollow)
+        {
             material = isWhite ? whiteMaterialHollow : blackMaterialHollow;
             meshFilter.mesh = CreateTriangularPrismMesh();
         }
-        else{
+        else
+        {
             material = isWhite ? whiteMaterial : blackMaterial;
             meshFilter.mesh = CreateTriangularPrismMesh();
         }
@@ -183,13 +203,14 @@ public class GamePieces : MonoBehaviour{
         meshRenderer.material = material;
     }
 
-    Mesh CreateTriangularPrismMesh(){
+    Mesh CreateTriangularPrismMesh()
+    {
         Mesh mesh = new Mesh();
         float h = 2f;
-        float outerW = 0.5f;    
-        float outerD = 0.4f;   
+        float outerW = 0.5f;
+        float outerD = 0.4f;
         float innerW = 0.25f;
-        float innerD = 0.2f; 
+        float innerD = 0.2f;
 
         Vector3[] vertices = new Vector3[]{
             // Bottom outer triangle

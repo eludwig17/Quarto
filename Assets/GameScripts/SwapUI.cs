@@ -36,13 +36,16 @@ public class SwapUI : MonoBehaviour
    {
        SetUIState_MainMenu();
 
-       if (BoardController == null)
+       if (BoardController != null)
        {
            boardControllerScript = BoardController.GetComponent<BoardControllerScript>();
            if (boardControllerScript == null)
            {
                Debug.LogError($"Board Controller not found on {BoardController.name}");
            }
+       }
+       else{
+           Debug.LogError("SwapUI: Board Controller is not assigned.");
        }
    }
    
@@ -98,6 +101,7 @@ public class SwapUI : MonoBehaviour
        Time.timeScale = 1f;
 
        SetUIState_HUD();
+       if (boardControllerScript != null) boardControllerScript.SetInputEnabled(true);
        
        string p1Name = (P1_Name_Input != null && !string.IsNullOrWhiteSpace(P1_Name_Input.text))
            ? P1_Name_Input.text
@@ -124,11 +128,13 @@ public class SwapUI : MonoBehaviour
     public void ShowMainMenu(){
         Time.timeScale = 1f;
         SetUIState_MainMenu();
+        if (boardControllerScript != null) boardControllerScript.SetInputEnabled(false);
     }
 
     public void ShowGameOver()
     {
         Time.timeScale = 0f;
+        if (boardControllerScript != null) boardControllerScript.SetInputEnabled(false);
         
         if (gameOverPanel != null) gameOverPanel.SetActive(true);
         if (pauseMenu != null) pauseMenu.SetActive(false);
@@ -140,6 +146,7 @@ public class SwapUI : MonoBehaviour
         if (HUD != null) HUD.SetActive(false);
         if (pauseMenu != null) pauseMenu.SetActive(false);
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
+        if (boardControllerScript != null) boardControllerScript.SetInputEnabled(false);
     }
 
     private void SetUIState_HUD()
@@ -148,6 +155,7 @@ public class SwapUI : MonoBehaviour
         if (pauseMenu != null) pauseMenu.SetActive(false);
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
         if (MainMenu != null) MainMenu.SetActive(false);
+        if (boardControllerScript != null) boardControllerScript.SetInputEnabled(true);
     }
 
     private void SetUIState_Pause()
@@ -156,6 +164,7 @@ public class SwapUI : MonoBehaviour
         if (pauseMenu != null) pauseMenu.SetActive(true);
         if (HUD  != null) HUD.SetActive(true);
         if (MainMenu != null) MainMenu.SetActive(false);
+        if (boardControllerScript != null) boardControllerScript.SetInputEnabled(false);
     }
     
     public void PauseGame(){
